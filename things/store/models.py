@@ -1,10 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+import uuid
 from django.db import models
 
 
+def generate_api_key():
+    return uuid.uuid4().hex + uuid.uuid4().hex
+
+
 # Create your models here.
+class ThingDevice(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    name = models.CharField(max_length=50, null=True)
+    description = models.CharField(max_length=100, null=True)
+    location = models.CharField(max_length=50, null=True)
+    api_key = models.CharField(max_length=64, editable=False, default=generate_api_key)
+
+
 class ThingData(models.Model):
     device_id = models.UUIDField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

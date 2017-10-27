@@ -20,7 +20,9 @@ from things.store import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'data', views.ThingDataViewSet)
+router.register(r'data', views.ThingDataReadViewSet)
+router.register(r'store', views.ThingDataWriteViewSet)
+router.register(r'device', views.ThingDeviceViewSet.as_view({'post':'post'}))
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
