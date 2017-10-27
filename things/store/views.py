@@ -1,38 +1,42 @@
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, generics, views
+from rest_framework import viewsets
 from things.store.serializers import UserSerializer, GroupSerializer, ThingDataReader, \
     ThingDataWriter, \
     ThingDeviceSerializer
 from things.store.models import ThingData, ThingDevice
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.views import Response
-from rest_framework import status
+from rest_framework import status, permissions
+from rest_framework.exceptions import PermissionDenied
 
 
 class ThingDeviceViewSet(viewsets.ModelViewSet):
     queryset = ThingDevice.objects.all()
     serializer_class = ThingDeviceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @detail_route(permission_classes=[permissions.IsAdminUser], methods=['get'])
+    def api_key(self, request, pk):
+        device = self.queryset.get(id=pk)
+        return Response(device.api_key)
 
 
-class ThingDataWriteViewSet(viewsets.generics.CreateAPIView):
+class ThingDataWriteViewSet(viewsets.ModelViewSet):
     queryset = ThingData.objects.all()
     serializer_class = ThingDataWriter
+    http_method_names = ['post']
+    authentication_classes = [permissions.AllowAny]
 
-    def post(self, request, *args, **kwargs):
-        data = request.data
+    def perform_create(self, serializer):
+        data = self.request.data
         api_key = data.get('api_key')
-        if api_key:
-            device_id = ThingDevice.objects.all().filter(api_key=api_key)
-            data.pop(api_key)
-            data.update({"device_id": device_id})
-            serializer = self.serializer_class(data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status.HTTP_201_CREATED)
-            else:
-                return Response(status.HTTP_400_BAD_REQUEST)
+        device = ThingDevice.objects.all().filter(api_key=api_key)
+
+        if device:
+            device_id = device[0].id
+            serializer.save(device_id=device_id)
         else:
-            return Response(status.HTTP_401_UNAUTHORIZED)
+            raise PermissionDenied
 
 
 class ThingDataReadViewSet(viewsets.ReadOnlyModelViewSet):
@@ -41,6 +45,7 @@ class ThingDataReadViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = ThingData.objects.all()
     serializer_class = ThingDataReader
+    permission_classes = [permissions.IsAuthenticated]
 
     @list_route(methods=['get'])
     def device(self, request):

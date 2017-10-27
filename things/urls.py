@@ -17,12 +17,12 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from things.store import views
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'data', views.ThingDataReadViewSet)
-router.register(r'store', views.ThingDataWriteViewSet)
-router.register(r'device', views.ThingDeviceViewSet.as_view({'post':'post'}))
+router.register(r'store', views.ThingDataWriteViewSet, base_name='store')
+router.register(r'read', views.ThingDataReadViewSet, base_name='read')
+router.register(r'device', views.ThingDeviceViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
