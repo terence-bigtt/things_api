@@ -1,4 +1,3 @@
-settings.py
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -98,3 +97,15 @@ ENV/
 *.iml
 out
 gen
+db.sqlite3
+manage.py
+setup/
+things/__init__.py
+things/store/migrations/0001_initial.py
+things/store/migrations/0002_thingdata_device_id.py
+things/store/migrations/0003_thingdevice.py
+things/store/migrations/0004_thingdevice_api_key.py
+things/store/migrations/0005_auto_20171027_1820.py
+things/store/migrations/0006_auto_20171027_1821.py
+things/wsgi.py
+things/settings.py
