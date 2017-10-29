@@ -8,7 +8,7 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.views import Response
 from rest_framework import status, permissions
 from rest_framework.exceptions import PermissionDenied
-
+import json
 
 class ThingDeviceViewSet(viewsets.ModelViewSet):
     queryset = ThingDevice.objects.all()
@@ -16,9 +16,18 @@ class ThingDeviceViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @detail_route(permission_classes=[permissions.IsAdminUser], methods=['get'])
-    def api_key(self, request, pk):
+    def api_key(self, request, pk=None):
         device = self.queryset.get(id=pk)
         return Response(device.api_key)
+
+    @detail_route(methods=['get'])
+    def plot_data(self, request, pk=None):
+        field = request.GET.get("field")
+        device_data = ThingData.objects.filter(device_id=pk)
+        if not field : return Response("Please specify a field number", status.HTTP_400_BAD_REQUEST)
+        datae= [{'x': data.created_at, 'y':data['value'+str(field)]}  for data in device_data]
+
+        return Response(json.dumps(datae), status.HTTP_200_OK)
 
 
 class ThingDataWriteViewSet(viewsets.ModelViewSet):
@@ -57,6 +66,8 @@ class ThingDataReadViewSet(viewsets.ReadOnlyModelViewSet):
             return Response("No device found", status.HTTP_204_NO_CONTENT)
             #    else:
             #        return self.queryset
+
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
