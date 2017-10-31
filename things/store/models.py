@@ -16,6 +16,8 @@ class ThingDevice(models.Model):
     description = models.CharField(max_length=100, null=True)
     location = models.CharField(max_length=50, null=True)
     api_key = models.CharField(max_length=64, editable=False, default=generate_api_key)
+    callback_url = models.URLField(editable=True, null=True)
+    callback_format = models.CharField(max_length=50, null=True, editable=True)
 
 
 class ThingData(models.Model):
